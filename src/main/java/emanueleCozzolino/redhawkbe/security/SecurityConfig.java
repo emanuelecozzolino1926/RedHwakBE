@@ -2,6 +2,7 @@ package emanueleCozzolino.redhawkbe.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -25,6 +26,7 @@ import java.util.List;
 public class SecurityConfig {
 
     @Autowired
+    @Lazy
     private JWTCheckerFilter jwtCheckerFilter;
 
     @Value("${allowed.origins}")
