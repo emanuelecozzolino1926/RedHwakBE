@@ -5,6 +5,7 @@ import emanueleCozzolino.redhawkbe.entities.Prodotto;
 import emanueleCozzolino.redhawkbe.entities.ProdottoIngrediente;
 import emanueleCozzolino.redhawkbe.exceptions.BadRequestException;
 import emanueleCozzolino.redhawkbe.exceptions.NotFoundException;
+import emanueleCozzolino.redhawkbe.payload.DisponibilitaDTO;
 import emanueleCozzolino.redhawkbe.payload.ProdottoDTO;
 import emanueleCozzolino.redhawkbe.payload.RicettaItemDTO;
 import emanueleCozzolino.redhawkbe.repositories.ProdottoIngredienteRepository;
@@ -79,6 +80,24 @@ public class ProdottoService {
         prodottoIngredienteRepository.save(pi);
 
         return this.findById(prodottoId);
+    }
+
+    public Prodotto rimuoviIngrediente(UUID prodottoId, UUID ingredienteId) {
+        Prodotto prodotto = this.findById(prodottoId);
+
+        ProdottoIngrediente pi = prodotto.getRicetta().stream()
+                .filter(r -> r.getIngrediente().getId().equals(ingredienteId))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("Ingrediente non trovato nella ricetta di questo prodotto!"));
+
+        prodottoIngredienteRepository.delete(pi);
+        return this.findById(prodottoId);
+    }
+
+    public Prodotto aggiornaDisponibilita(UUID id, DisponibilitaDTO dto) {
+        Prodotto prodotto = this.findById(id);
+        prodotto.setDisponibile(dto.disponibile());
+        return prodottoRepository.save(prodotto);
     }
 
     public void delete(UUID id) {

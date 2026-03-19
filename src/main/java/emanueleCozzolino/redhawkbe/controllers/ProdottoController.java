@@ -2,6 +2,7 @@ package emanueleCozzolino.redhawkbe.controllers;
 
 import emanueleCozzolino.redhawkbe.entities.Prodotto;
 import emanueleCozzolino.redhawkbe.exceptions.BadRequestException;
+import emanueleCozzolino.redhawkbe.payload.DisponibilitaDTO;
 import emanueleCozzolino.redhawkbe.payload.ProdottoDTO;
 import emanueleCozzolino.redhawkbe.payload.RicettaItemDTO;
 import emanueleCozzolino.redhawkbe.service.ProdottoService;
@@ -79,6 +80,25 @@ public class ProdottoController {
             throw new BadRequestException(errors.toString());
         }
         return prodottoService.aggiungiIngrediente(id, body);
+    }
+
+    @PatchMapping("/{id}/disponibilita")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public Prodotto aggiornaDisponibilita(@PathVariable UUID id, @RequestBody @Validated DisponibilitaDTO body, BindingResult validationResult) {
+        if (validationResult.hasErrors()) {
+            List<String> errors = validationResult.getFieldErrors()
+                    .stream()
+                    .map(fieldError -> fieldError.getDefaultMessage())
+                    .toList();
+            throw new BadRequestException(errors.toString());
+        }
+        return prodottoService.aggiornaDisponibilita(id, body);
+    }
+
+    @DeleteMapping("/{id}/ricetta/{ingredienteId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public Prodotto rimuoviIngrediente(@PathVariable UUID id, @PathVariable UUID ingredienteId) {
+        return prodottoService.rimuoviIngrediente(id, ingredienteId);
     }
 
     @DeleteMapping("/{id}")
