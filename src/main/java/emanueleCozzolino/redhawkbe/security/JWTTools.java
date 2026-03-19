@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Component
@@ -20,10 +21,15 @@ public class JWTTools {
 
     public String generateToken(Utente utente) {
 
+        List<String> ruoli = utente.getRuoli().stream()
+                .map(ruolo -> ruolo.getNomeRuolo())
+                .toList();
+
         return Jwts.builder()
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 7))
                 .subject(String.valueOf(utente.getId()))
+                .claim("ruoli", ruoli)
                 .signWith(Keys.hmacShaKeyFor(secret.getBytes()))
                 .compact();
     }

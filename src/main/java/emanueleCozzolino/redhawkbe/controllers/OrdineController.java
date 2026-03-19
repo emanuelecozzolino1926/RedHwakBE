@@ -56,6 +56,19 @@ public class OrdineController {
         return nuovoOrdine;
     }
 
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'CUCINA')")
+    public Ordine update(@PathVariable UUID id, @RequestBody @Validated NuovoOrdineDTO body, BindingResult validationResult) {
+        if (validationResult.hasErrors()) {
+            List<String> errors = validationResult.getFieldErrors()
+                    .stream()
+                    .map(fieldError -> fieldError.getDefaultMessage())
+                    .toList();
+            throw new BadRequestException(errors.toString());
+        }
+        return ordineService.update(id, body);
+    }
+
     @PatchMapping("/{id}/stato")
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUCINA')")
     public Ordine aggiornaStato(@PathVariable UUID id, @RequestBody @Validated AggiornaStatoOrdineDTO body, BindingResult validationResult) {

@@ -96,4 +96,23 @@ public class OrdineService {
         ordine.setStato(dto.stato());
         return ordineRepository.save(ordine);
     }
+
+    public Ordine update(UUID id, NuovoOrdineDTO dto) {
+        Ordine ordine = this.findById(id);
+        if (!ordine.getStato().equals(StatoOrdine.INVIATO)) throw new BadRequestException("L'ordine non può essere modificato perché è già in preparazione!");
+
+        ordine.getVoci().clear();
+        ordine.setNumeroTavolo(dto.numeroTavolo());
+        ordine.setNote(dto.note());
+
+        for (var voceDto : dto.voci()) {
+            Prodotto prodotto = prodottoService.findById(voceDto.prodottoId());
+            if (!prodotto.isDisponibile()) throw new BadRequestException("Il prodotto " + prodotto.getNome() + " non è al momento disponibile!");
+
+            VoceOrdine voce = new VoceOrdine(ordine, prodotto, voceDto.quantita());
+            ordine.getVoci().add(voce);
+        }
+
+        return ordineRepository.save(ordine);
+    }
 }
