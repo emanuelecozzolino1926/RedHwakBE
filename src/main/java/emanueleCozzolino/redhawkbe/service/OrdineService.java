@@ -21,7 +21,10 @@ import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.criteria.Predicate;
+
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,8 +65,14 @@ public class OrdineService {
         return ordineRepository.findByStato(stato);
     }
 
-    public Page<Ordine> findWithFilters(StatoOrdine stato, Integer tavolo, LocalDateTime from, Pageable pageable) {
-        return ordineRepository.findWithFilters(stato, tavolo, from, pageable);
+    public Page<Ordine> findWithFilters(String stato, Integer tavolo, LocalDateTime from, Pageable pageable) {
+        return ordineRepository.findAll((root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            if (stato != null) predicates.add(cb.equal(root.get("stato"), StatoOrdine.valueOf(stato)));
+            if (tavolo != null) predicates.add(cb.equal(root.get("numeroTavolo"), tavolo));
+            if (from != null) predicates.add(cb.greaterThanOrEqualTo(root.get("dataCreazione"), from));
+            return cb.and(predicates.toArray(new Predicate[0]));
+        }, pageable);
     }
 
     @Transactional

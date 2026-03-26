@@ -37,7 +37,7 @@ public class OrdineController {
     @GetMapping
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CUCINA')")
     public Page<Ordine> findAll(
-            @RequestParam(required = false) StatoOrdine stato,
+            @RequestParam(required = false) String stato,
             @RequestParam(required = false) Integer tavolo,
             @RequestParam(required = false) LocalDateTime from,
             @RequestParam(defaultValue = "0") int page,
