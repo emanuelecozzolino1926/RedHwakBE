@@ -47,6 +47,10 @@ public class IngredienteService {
         return ingredienteRepository.save(ingrediente);
     }
 
+    public List<Ingrediente> findSottoSoglia(int soglia) {
+        return ingredienteRepository.findByGiacenzaLessThanEqual(soglia);
+    }
+
     public void delete(UUID id) {
         Ingrediente ingrediente = this.findById(id);
         ingredienteRepository.delete(ingrediente);

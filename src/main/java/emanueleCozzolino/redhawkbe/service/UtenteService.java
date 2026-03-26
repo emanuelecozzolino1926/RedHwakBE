@@ -4,6 +4,7 @@ import emanueleCozzolino.redhawkbe.entities.Ruolo;
 import emanueleCozzolino.redhawkbe.entities.Utente;
 import emanueleCozzolino.redhawkbe.exceptions.BadRequestException;
 import emanueleCozzolino.redhawkbe.exceptions.NotFoundException;
+import emanueleCozzolino.redhawkbe.payload.AggiornaUtenteDTO;
 import emanueleCozzolino.redhawkbe.payload.RegistraUtenteDTO;
 import emanueleCozzolino.redhawkbe.repositories.RuoloRepository;
 import emanueleCozzolino.redhawkbe.repositories.UtenteRepository;
@@ -53,6 +54,29 @@ public class UtenteService {
         utente.setEmail(dto.email());
         utente.setUsername(dto.username());
         utente.setPassword(passwordEncoder.encode(dto.password()));
+
+        Ruolo ruolo = ruoloRepository.findByNomeRuolo(dto.ruolo())
+                .orElseThrow(() -> new NotFoundException("Ruolo " + dto.ruolo() + " non trovato nel DB!"));
+        Set<Ruolo> ruoli = new HashSet<>();
+        ruoli.add(ruolo);
+        utente.setRuoli(ruoli);
+
+        return utenteRepository.save(utente);
+    }
+
+    public Utente updateUtente(UUID id, AggiornaUtenteDTO dto) {
+        Utente utente = this.findById(id);
+
+        if (!utente.getEmail().equals(dto.email()) && utenteRepository.findByEmail(dto.email()).isPresent())
+            throw new BadRequestException("Email " + dto.email() + " già in uso!");
+
+        if (!utente.getUsername().equals(dto.username()) && utenteRepository.findByUsername(dto.username()).isPresent())
+            throw new BadRequestException("Username " + dto.username() + " già in uso!");
+
+        utente.setNome(dto.nome());
+        utente.setCognome(dto.cognome());
+        utente.setEmail(dto.email());
+        utente.setUsername(dto.username());
 
         Ruolo ruolo = ruoloRepository.findByNomeRuolo(dto.ruolo())
                 .orElseThrow(() -> new NotFoundException("Ruolo " + dto.ruolo() + " non trovato nel DB!"));

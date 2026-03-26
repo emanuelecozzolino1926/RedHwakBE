@@ -1,11 +1,15 @@
 package emanueleCozzolino.redhawkbe.controllers;
 
 import emanueleCozzolino.redhawkbe.entities.Utente;
+import emanueleCozzolino.redhawkbe.exceptions.BadRequestException;
+import emanueleCozzolino.redhawkbe.payload.AggiornaUtenteDTO;
 import emanueleCozzolino.redhawkbe.service.UtenteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,6 +35,19 @@ public class UtenteController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public List<Utente> findAll() {
         return utenteService.findAll();
+    }
+
+    @PutMapping("/utenti/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public Utente update(@PathVariable UUID id, @RequestBody @Validated AggiornaUtenteDTO body, BindingResult validationResult) {
+        if (validationResult.hasErrors()) {
+            List<String> errors = validationResult.getFieldErrors()
+                    .stream()
+                    .map(fieldError -> fieldError.getDefaultMessage())
+                    .toList();
+            throw new BadRequestException(errors.toString());
+        }
+        return utenteService.updateUtente(id, body);
     }
 
     @DeleteMapping("/utenti/{id}")

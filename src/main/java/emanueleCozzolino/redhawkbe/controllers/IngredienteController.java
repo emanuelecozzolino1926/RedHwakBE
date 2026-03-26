@@ -31,6 +31,12 @@ public class IngredienteController {
         return ingredienteService.findAll();
     }
 
+    @GetMapping("/sotto-soglia")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public List<Ingrediente> findSottoSoglia(@RequestParam(defaultValue = "5") int soglia) {
+        return ingredienteService.findSottoSoglia(soglia);
+    }
+
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('ADMIN')")
     public Ingrediente findById(@PathVariable UUID id) {

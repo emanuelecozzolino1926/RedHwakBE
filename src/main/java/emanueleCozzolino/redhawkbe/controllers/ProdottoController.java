@@ -7,6 +7,9 @@ import emanueleCozzolino.redhawkbe.payload.ProdottoDTO;
 import emanueleCozzolino.redhawkbe.payload.RicettaItemDTO;
 import emanueleCozzolino.redhawkbe.service.ProdottoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
@@ -28,8 +31,11 @@ public class ProdottoController {
     }
 
     @GetMapping
-    public List<Prodotto> findAll() {
-        return prodottoService.findAll();
+    public Page<Prodotto> findAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        PageRequest pageable = PageRequest.of(page, size, Sort.by("nome").ascending());
+        return prodottoService.findAll(pageable);
     }
 
     @GetMapping("/{id}")
