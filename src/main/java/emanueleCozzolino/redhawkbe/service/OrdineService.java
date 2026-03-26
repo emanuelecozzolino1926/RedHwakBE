@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -87,8 +88,11 @@ public class OrdineService {
                     ingredienteRepository.save(ingrediente);
 
                     if (ingrediente.getGiacenza() == 0) {
-                        messagingTemplate.convertAndSend("/topic/stock/alert",
-                                Map.of("tipo", "ESAURITO", "ingrediente", ingrediente.getNome(), "giacenza", 0));
+                        Map<String, Object> alert = new java.util.HashMap<>();
+                        alert.put("tipo", "ESAURITO");
+                        alert.put("ingrediente", ingrediente.getNome());
+                        alert.put("giacenza", 0);
+                        messagingTemplate.convertAndSend("/topic/stock/alert", (Object) alert);
 
                         List<Prodotto> prodottiColleati = prodottoRepository.findAll().stream()
                                 .filter(p -> p.getRicetta().stream()
@@ -99,8 +103,11 @@ public class OrdineService {
                             prodottoRepository.save(p);
                         });
                     } else if (ingrediente.getGiacenza() <= SOGLIA_STOCK) {
-                        messagingTemplate.convertAndSend("/topic/stock/alert",
-                                Map.of("tipo", "SCORTA_BASSA", "ingrediente", ingrediente.getNome(), "giacenza", ingrediente.getGiacenza()));
+                        Map<String, Object> alert = new java.util.HashMap<>();
+                        alert.put("tipo", "SCORTA_BASSA");
+                        alert.put("ingrediente", ingrediente.getNome());
+                        alert.put("giacenza", ingrediente.getGiacenza());
+                        messagingTemplate.convertAndSend("/topic/stock/alert", (Object) alert);
                     }
                 }
             }

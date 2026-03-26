@@ -31,8 +31,10 @@ public class JWTCheckerFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer "))
-            throw new UnauthorizedException("Token non valido! Inserisci il token nell'header Authorization.");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         String token = authHeader.replace("Bearer ", "");
         jwtTools.verifyToken(token);
@@ -48,6 +50,6 @@ public class JWTCheckerFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        return new AntPathMatcher().match("/auth/**", request.getServletPath());
+        return new AntPathMatcher().match("/api/auth/**", request.getServletPath());
     }
 }
